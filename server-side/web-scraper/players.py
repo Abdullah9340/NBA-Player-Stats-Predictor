@@ -55,3 +55,7 @@ def get_player_game_log(player_name, year):
         return df[["PTS", "TRB", "AST", "STL", "BLK", "TOV", "PF", "FG", "FGA", "FG%", "3P", "3PA", "3P%", "FT", "FTA", "FT%", "MP", "+/-"]]
     except Exception as e:
         return None
+
+
+test = get_player_game_log("LeBron James", 2022)
+print(test.describe())
