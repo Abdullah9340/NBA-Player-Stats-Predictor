@@ -42,6 +42,7 @@ def get_player_career_stats(player_name):
 
 
 def get_player_game_log(player_name, year):
+    print('test')
     """
     This function takes in a player name and a year and returns a dataframe of the player's
     game log stats for that year. The function returns None if the player name is invalid.
@@ -52,6 +53,7 @@ def get_player_game_log(player_name, year):
         soup = BeautifulSoup(r.content, 'html.parser')
         table = soup.find('table')
         df = pd.read_html(str(table))[0].dropna(axis=0)
-        return df[["PTS", "TRB", "AST", "STL", "BLK", "TOV", "PF", "FG", "FGA", "FG%", "3P", "3PA", "3P%", "FT", "FTA", "FT%", "MP", "+/-"]]
+        df_last_10 = df.tail(10)
+        return df_last_10[["PTS", "TRB", "AST", "STL", "BLK", "TOV", "PF", "FG", "FGA", "FG%", "3P", "3PA", "3P%", "FT", "FTA", "FT%", "MP", "+/-"]]
     except Exception as e:
         return None
