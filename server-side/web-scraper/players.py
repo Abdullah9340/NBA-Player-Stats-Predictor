@@ -42,7 +42,6 @@ def get_player_career_stats(player_name):
 
 
 def get_player_game_log(player_name, year):
-    print('test')
     """
     This function takes in a player name and a year and returns a dataframe of the player's
     game log stats for that year. The function returns None if the player name is invalid.
