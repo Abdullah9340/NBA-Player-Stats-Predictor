@@ -1,5 +1,6 @@
 import pickle
 from web_scraper.players import get_player_game_log, get_player_career_stats
+import numpy as np
 
 
 class Predictions:
@@ -11,22 +12,55 @@ class Predictions:
         self.rebounds_model = pickle.load(
             open('model_creation/pickle_models/rebounds.pkl', 'rb'))
 
-    def predict_points(self, player_name):
-        input_data = get_player_career_stats(player_name).tail(2).head(1)
-        prediction = self.points_model.predict(input_data)
-        return prediction
+    def predict_next_game(self, player_name, year=2021):
+        season_pts = self.predict_points(player_name, year)
+        season_ast = self.predict_assists(player_name, year)
+        season_reb = self.predict_rebounds(player_name, year)
+        df = get_player_game_log(player_name, year + 2)
+        if len(df) < 10:
+            return season_pts, season_ast, season_reb
+        p = self.perform_regression(df['PTS'].values)
+        game_prediction = p(10)
+        a = self.perform_regression(df['AST'].values)
+        game_prediction_assists = a(10)
+        r = self.perform_regression(df['TRB'].values)
+        game_prediction_rebounds = r(10)
+        return (0.80 * season_pts + 0.2 * game_prediction), (0.8 * season_ast + 0.2 * game_prediction_assists), (0.8 * season_reb + 0.2 * game_prediction_rebounds)
 
-    def predict_assists(self, input_data):
+    def perform_regression(self, values):
+        X = [i for i in range(10)]
+        Y = [int(v) for v in values]
+        p = np.poly1d(np.polyfit(X, Y, 3))
+        return p
+
+    def predict_points(self, player_name, year=2021):
+        # Get Season Prediction
+        df = get_player_career_stats(player_name)
+        input_data = df.loc[df['Season'] == year].copy()
+        input_data.drop('Season', axis=1, inplace=True)
+        season_prediction = self.points_model.predict(input_data)
+        return season_prediction
+
+    def predict_assists(self, player_name, year=2021):
+        df = get_player_career_stats(player_name)
+        input_data = df.loc[df['Season'] == year].copy()
+        input_data.drop('Season', axis=1, inplace=True)
         prediction = self.assists_model.predict(input_data)
         return prediction
 
-    def predict_rebounds(self, input_data):
+    def predict_rebounds(self, player_name, year=2021):
+        df = get_player_career_stats(player_name)
+        input_data = df.loc[df['Season'] == year].copy()
+        input_data.drop('Season', axis=1, inplace=True)
         prediction = self.rebounds_model.predict(input_data)
         return prediction
 
+    def predict_season_stats(self, player_name, year=2021):
+        points = self.predict_points(player_name, year)
+        assists = self.predict_assists(player_name, year)
+        rebounds = self.predict_rebounds(player_name, year)
+        return points, assists, rebounds
 
-lebron_stats = [[2, 29, 77, 37.7, 10.0, 17.6, .567, 1.5,
-                4.0, .379, 5.7, 7.6, .750, 6.9, 6.3, 1.6, 0.3, 3.5, 1.6, 22.1]]
 
 test = Predictions()
-print(test.predict_points("Ja Morant"))
+print(test.predict_next_game(input("Enter a player name: ")))
