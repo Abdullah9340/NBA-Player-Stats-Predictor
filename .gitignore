@@ -1,1 +1,3 @@
-server-side/venv
+server_side/venv
+server_side/model_creation/__pycache__
+server_side/web_scraper/__pycache__

@@ -2,6 +2,14 @@ import pandas as pd
 from requests import get
 from bs4 import BeautifulSoup
 
+player_to_pos = {
+    'PG': 1,
+    'SG': 2,
+    'SF': 3,
+    'PF': 4,
+    'C': 5
+}
+
 
 def convert_player_to_url(player_name, type="career", year=2022):
     """
@@ -34,10 +42,12 @@ def get_player_career_stats(player_name):
         soup = BeautifulSoup(r.content, 'html.parser')
         table = soup.find('table')
         df = pd.read_html(str(table))[0].dropna(axis=0)
-        df.rename(columns={'Season': 'SEASON', 'Age': 'AGE',
-                           'Tm': 'TEAM', 'Lg': 'LEAGUE', 'Pos': 'POS'}, inplace=True)
-        return df
+        df = df[~df['Pos'].str.contains("Did Not Play")]
+        df['Pos'] = df['Pos'].apply(lambda x: player_to_pos[x.split('-')[0]])
+        return df[['Pos', 'Age', 'G', 'MP', 'FG', 'FGA', 'FG%', '3P', '3PA', '3P%', 'FT',
+                  'FTA', 'FT%', 'TRB', 'AST', 'STL', 'BLK', 'TOV', 'PF', 'PTS']]
     except Exception as e:
+        print(e)
         return None
 
 
@@ -56,7 +66,3 @@ def get_player_game_log(player_name, year):
         return df_last_10[["PTS", "TRB", "AST", "STL", "BLK", "TOV", "PF", "FG", "FGA", "FG%", "3P", "3PA", "3P%", "FT", "FTA", "FT%", "MP", "+/-"]]
     except Exception as e:
         return None
-
-
-test = get_player_game_log("LeBron James", 2022)
-print(test.describe())
