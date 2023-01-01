@@ -16,7 +16,16 @@ def convert_player_to_url(player_name, type="career", year=2022):
         prefix = last_name[0:5].lower()
         suffix = first_name[0:2].lower()
         if (type == "career"):
-            return f"https://widgets.sports-reference.com/wg.fcgi?css=1&site=bbr&url=/players/{prefix[0]}/{prefix}{suffix}01.html&div=div_per_game"
+            url_option1 = f"https://widgets.sports-reference.com/wg.fcgi?css=1&site=bbr&url=/players/{prefix[0]}/{prefix}{suffix}01.html&div=div_per_game"
+            url_option2 = f"https://widgets.sports-reference.com/wg.fcgi?css=1&site=bbr&url=/players/{prefix[0]}/{prefix}{suffix}02.html&div=div_per_game"
+            r = get(url_option1)
+            soup = BeautifulSoup(r.content, 'html.parser')
+            h1 = soup.find('h1')
+            found_name = h1.find('span').text
+            if found_name == player_name:
+                return url_option1
+            else:
+                return url_option2
         elif (type == "game_log"):
             return f"https://widgets.sports-reference.com/wg.fcgi?css=1&site=bbr&url=/players/{prefix[0]}/{prefix}{suffix}01/gamelog/{year}/&div=div_pgl_basic"
     except Exception as e:
