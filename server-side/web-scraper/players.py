@@ -2,7 +2,7 @@ import pandas as pd
 from requests import get
 from bs4 import BeautifulSoup
 
-
+#change the function name to something more appropriate, or perhaps split into 2 functions
 def convert_player_to_url(player_name, type="career", year=2022):
     """
       This function converts a player name to a url that can be used to scrape the player
@@ -22,16 +22,36 @@ def convert_player_to_url(player_name, type="career", year=2022):
             soup = BeautifulSoup(r.content, 'html.parser')
             h1 = soup.find('h1')
             found_name = h1.find('span').text
+            table = None
             if found_name == player_name:
-                return url_option1
+                table = soup.find('table')
             else:
-                return url_option2
+                r = get(url_option2)
+                soup = BeautifulSoup(r.content, 'html.parser')
+                table = soup.find('table')
+            return table
+        
         elif (type == "game_log"):
-            return f"https://widgets.sports-reference.com/wg.fcgi?css=1&site=bbr&url=/players/{prefix[0]}/{prefix}{suffix}01/gamelog/{year}/&div=div_pgl_basic"
+            url_option1 = f"https://widgets.sports-reference.com/wg.fcgi?css=1&site=bbr&url=/players/{prefix[0]}/{prefix}{suffix}01/gamelog/{year}/&div=div_pgl_basic"
+            url_option2 = f"https://widgets.sports-reference.com/wg.fcgi?css=1&site=bbr&url=/players/{prefix[0]}/{prefix}{suffix}01/gamelog/{year}/&div=div_pgl_basic"
+            r = get(url_option1)
+            soup = BeautifulSoup(r.content, 'html.parser')
+            h1 = soup.find('h1')
+            found_name = h1.find('span').text
+            table = None
+            if found_name == player_name:
+                table = soup.find('table')
+            else:
+                r = get(url_option2)
+                soup = BeautifulSoup(r.content, 'html.parser')
+                table = soup.find('table')
+            return table
+
     except Exception as e:
         return None
 
 
+#need to make adjustments to function calls
 def get_player_career_stats(player_name):
     """
     This function takes in a player name and returns a dataframe of the player's career
@@ -49,7 +69,7 @@ def get_player_career_stats(player_name):
     except Exception as e:
         return None
 
-
+#need to make adjustments to function calls
 def get_player_game_log(player_name, year):
     """
     This function takes in a player name and a year and returns a dataframe of the player's
@@ -66,6 +86,3 @@ def get_player_game_log(player_name, year):
     except Exception as e:
         return None
 
-
-test = get_player_game_log("LeBron James", 2022)
-print(test.describe())
