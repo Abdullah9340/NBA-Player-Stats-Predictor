@@ -1,5 +1,5 @@
 import pickle
-from web_scraper.players import get_player_game_log, get_player_career_stats
+import web_scraper.players as ws
 import numpy as np
 
 
@@ -16,7 +16,7 @@ class Predictions:
         season_pts = self.predict_points(player_name, year)
         season_ast = self.predict_assists(player_name, year)
         season_reb = self.predict_rebounds(player_name, year)
-        df = get_player_game_log(player_name, year + 2)
+        df = ws.game_log_table(player_name, year + 2)
         if len(df) < 10:
             return season_pts, season_ast, season_reb
         p = self.perform_regression(df['PTS'].values)
@@ -35,21 +35,21 @@ class Predictions:
 
     def predict_points(self, player_name, year=2021):
         # Get Season Prediction
-        df = get_player_career_stats(player_name)
+        df = ws.career_stats_table(player_name)
         input_data = df.loc[df['Season'] == year].copy()
         input_data.drop('Season', axis=1, inplace=True)
         season_prediction = self.points_model.predict(input_data)
         return season_prediction
 
     def predict_assists(self, player_name, year=2021):
-        df = get_player_career_stats(player_name)
+        df = ws.career_stats_table(player_name)
         input_data = df.loc[df['Season'] == year].copy()
         input_data.drop('Season', axis=1, inplace=True)
         prediction = self.assists_model.predict(input_data)
         return prediction
 
     def predict_rebounds(self, player_name, year=2021):
-        df = get_player_career_stats(player_name)
+        df = ws.career_stats_table(player_name)
         input_data = df.loc[df['Season'] == year].copy()
         input_data.drop('Season', axis=1, inplace=True)
         prediction = self.rebounds_model.predict(input_data)
