@@ -63,7 +63,7 @@ def career_stats_table(player_name):
         table = soup.find('table')
         df = pd.read_html(str(table))[0].dropna(axis=0)
         df = df[~df['Pos'].str.contains("Did Not Play")]
-        df['Pos'] = df['Pos'].apply(lambda x: player_to_pos[x.split('-')[0]])
+        df['Pos'] = df['Pos'].apply(lambda x: player_to_pos[x.split(',')[0]])
         df['Season'] = df['Season'].apply(lambda x: int(x.split('-')[0]))
         return df[['Season', 'Pos', 'Age', 'G', 'MP', 'FG', 'FGA', 'FG%', '3P', '3PA', '3P%', 'FT',
                   'FTA', 'FT%', 'TRB', 'AST', 'STL', 'BLK', 'TOV', 'PF', 'PTS']]

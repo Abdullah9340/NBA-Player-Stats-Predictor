@@ -13,9 +13,10 @@ class Predictions:
             open('model_creation/pickle_models/rebounds.pkl', 'rb'))
 
     def predict_next_game(self, player_name, year=2021):
-        season_pts = self.predict_points(player_name, year)
-        season_ast = self.predict_assists(player_name, year)
-        season_reb = self.predict_rebounds(player_name, year)
+        df = ws.career_stats_table(player_name)
+        season_pts = self.predict_points(player_name, df, year)
+        season_ast = self.predict_assists(player_name, df, year)
+        season_reb = self.predict_rebounds(player_name, df, year)
         df = ws.game_log_table(player_name, year + 2)
         if len(df) < 10:
             return season_pts, season_ast, season_reb
@@ -33,32 +34,31 @@ class Predictions:
         p = np.poly1d(np.polyfit(X, Y, 3))
         return p
 
-    def predict_points(self, player_name, year=2021):
+    def predict_points(self, player_name, df, year=2021):
         # Get Season Prediction
-        df = ws.career_stats_table(player_name)
-        input_data = df.loc[df['Season'] == year].copy()
+        input_data = df.loc[df['Season'] == year].copy().tail(1)
+        print(input_data)
         input_data.drop('Season', axis=1, inplace=True)
         season_prediction = self.points_model.predict(input_data)
         return season_prediction
 
-    def predict_assists(self, player_name, year=2021):
-        df = ws.career_stats_table(player_name)
-        input_data = df.loc[df['Season'] == year].copy()
+    def predict_assists(self, player_name, df, year=2021):
+        input_data = df.loc[df['Season'] == year].copy().tail(1)
         input_data.drop('Season', axis=1, inplace=True)
         prediction = self.assists_model.predict(input_data)
         return prediction
 
-    def predict_rebounds(self, player_name, year=2021):
-        df = ws.career_stats_table(player_name)
-        input_data = df.loc[df['Season'] == year].copy()
+    def predict_rebounds(self, player_name, df, year=2021):
+        input_data = df.loc[df['Season'] == year].copy().tail(1)
         input_data.drop('Season', axis=1, inplace=True)
         prediction = self.rebounds_model.predict(input_data)
         return prediction
 
     def predict_season_stats(self, player_name, year=2021):
-        points = self.predict_points(player_name, year)
-        assists = self.predict_assists(player_name, year)
-        rebounds = self.predict_rebounds(player_name, year)
+        df = ws.career_stats_table(player_name)
+        points = self.predict_points(player_name, df, year)
+        assists = self.predict_assists(player_name, df, year)
+        rebounds = self.predict_rebounds(player_name, df, year)
         return points, assists, rebounds
 
 
