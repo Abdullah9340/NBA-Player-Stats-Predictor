@@ -1,20 +1,33 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, SafeAreaView } from "react-native";
+import { useFonts, Inter_500Medium } from "@expo-google-fonts/inter";
 
 export default function App() {
+  let [fontsLoaded] = useFonts({
+    Inter_500Medium,
+  });
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
   return (
-    <View style={styles.container}>
-      <Text>NBA Player Stats Predictor</Text>
-      <StatusBar style="auto" />
-    </View>
+    <SafeAreaView>
+      <View style={styles.container}>
+        <Text style={styles.text}>NBA Player Stats Predictor</Text>
+        <StatusBar style="auto" />
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
+    paddingTop: 10,
+  },
+  text: {
+    fontFamily: "Inter_500Medium",
+    textAlign: "center",
+    fontSize: "24px",
   },
 });
