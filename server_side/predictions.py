@@ -37,7 +37,6 @@ class Predictions:
     def predict_points(self, player_name, df, year=2021):
         # Get Season Prediction
         input_data = df.loc[df['Season'] == year].copy().tail(1)
-        print(input_data)
         input_data.drop('Season', axis=1, inplace=True)
         season_prediction = self.points_model.predict(input_data)
         return season_prediction
@@ -60,7 +59,3 @@ class Predictions:
         assists = self.predict_assists(player_name, df, year)
         rebounds = self.predict_rebounds(player_name, df, year)
         return points, assists, rebounds
-
-
-test = Predictions()
-print(test.predict_next_game(input("Enter a player name: ")))
