@@ -1,3 +1,5 @@
 server_side/venv
 __pycache__
 server_side/server_side.egg-info
+client_side/node_modules
+client_side/.expo
