@@ -4,14 +4,13 @@ import * as Font from "expo-font";
 import { Inter_500Medium } from "@expo-google-fonts/inter";
 import * as SplashScreen from "expo-splash-screen";
 import { useCallback, useEffect, useState } from "react";
-import SearchBar from "./components/SearchBar";
 import { LinearGradient } from "expo-linear-gradient";
-import { NBAPlayer } from "./components/Class";
-import axios from "axios";
+
+import { NativeRouter, Route, Routes } from "react-router-native";
+import Home from "./components/Home";
 
 export default function App() {
   const [appIsReady, setAppIsReady] = useState(false);
-  const [NBAPlayers, setNBAPlayers] = useState([]);
 
   useEffect(() => {
     async function prepare() {
@@ -28,17 +27,6 @@ export default function App() {
     prepare();
   }, []);
 
-  // useEffect(() => {
-  //   axios
-  //     .get(`http://192.168.2.15:5000/predict_season_stats/Lebron_James`)
-  //     .then((res) => {
-  //       console.log(res.data);
-  //     })
-  //     .catch((err) => {
-  //       console.log(err);
-  //     });
-  // }, []);
-
   const onLayout = useCallback(() => {
     if (appIsReady) {
       SplashScreen.hideAsync();
@@ -52,16 +40,19 @@ export default function App() {
   return (
     <LinearGradient
       // Button Linear Gradient
-      colors={["#CAF2FD", "#FFFFFF"]}
+      colors={["#CAF2FD", "#b2d3db"]}
     >
       <SafeAreaView>
         <View style={styles.container} onLayout={onLayout}>
           <StatusBar style="auto" />
           <Text style={styles.text}>NBA Player Stats Predictor</Text>
-          <SearchBar setNBAPlayers={setNBAPlayers} />
-          {NBAPlayers.map((player, index) => (
-            <Text key={index}>{player}</Text>
-          ))}
+          <NativeRouter>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              {/* <Route path="/about" component={About} />
+            <Route path="/topics" component={Topics} /> */}
+            </Routes>
+          </NativeRouter>
         </View>
       </SafeAreaView>
     </LinearGradient>
@@ -81,5 +72,23 @@ const styles = StyleSheet.create({
   backgroundColor: {
     backgroundColor: "#FCEFE3",
     height: "100%",
+  },
+  searchResultsContainer: {
+    display: "flex",
+    flexDirection: "column",
+    width: "100%",
+    marginLeft: "auto",
+  },
+  searchResultText: {
+    fontSize: "18px",
+    color: "gray",
+  },
+  searchResult: {
+    borderBottomColor: "black",
+    borderBottomWidth: 1,
+    padding: 10,
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
 });
