@@ -1,5 +1,3 @@
-server_side/venv
+./server_side
 __pycache__
-server_side/server_side.egg-info
-client_side/node_modules
-client_side/.expo
+root.crt

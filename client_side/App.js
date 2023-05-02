@@ -7,9 +7,8 @@ import { useCallback, useEffect, useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { NativeRouter, Route, Routes } from "react-router-native";
 import Home from "./components/Home";
-import { PlayerPanel } from "./components/PlayerPanel";
+import { PlayerCard } from "./components/PlayerPanel";
 
 const Stack = createNativeStackNavigator();
 const navTheme = {
@@ -74,7 +73,7 @@ export default function App() {
               />
               <Stack.Screen
                 name="PlayerPanel"
-                component={PlayerPanel}
+                component={PlayerCard}
                 options={{
                   headerShown: false,
                   animation: "none",
