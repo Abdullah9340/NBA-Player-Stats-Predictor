@@ -1,10 +1,44 @@
 import pickle
-import web_scraper.players as ws
+import players as ws
 import numpy as np
+import os
+import json
+
+from google.cloud import storage
+
+
+def download_model_file():
+
+    # Model Bucket details
+    BUCKET_NAME = ""
+    PROJECT_ID = ""
+    ASSISTS = "assists.pkl"
+    REBOUNDS = "rebounds.pkl"
+    POINTS = "points.pkl"
+
+    # Initialise a client
+    client = storage.Client(PROJECT_ID)
+
+    # Create a bucket object for our bucket
+    bucket = client.get_bucket(BUCKET_NAME)
+
+    # Create a blob object from the filepath
+    blobA = bucket.blob(ASSISTS)
+    blobR = bucket.blob(REBOUNDS)
+    blobP = bucket.blob(POINTS)
+
+    folder = '/tmp/'
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+    # Download the file to a destination
+    blobA.download_to_filename(folder + ASSISTS)
+    blobR.download_to_filename(folder + REBOUNDS)
+    blobP.download_to_filename(folder + POINTS)
 
 
 class Predictions:
     def __init__(self):
+        # download_model_file()
         self.points_model = pickle.load(
             open('model_creation/pickle_models/points.pkl', 'rb'))
         self.assists_model = pickle.load(
@@ -12,21 +46,39 @@ class Predictions:
         self.rebounds_model = pickle.load(
             open('model_creation/pickle_models/rebounds.pkl', 'rb'))
 
-    def predict_next_game(self, player_name, year=2021):
+
+    def predict(self, player_name, year=2021):
         df = ws.career_stats_table(player_name)
-        season_pts = self.predict_points(player_name, df, year)
-        season_ast = self.predict_assists(player_name, df, year)
-        season_reb = self.predict_rebounds(player_name, df, year)
+        season_pts = self.predict_points(player_name, df, year)[0]
+        season_ast = self.predict_assists(player_name, df, year)[0]
+        season_reb = self.predict_rebounds(player_name, df, year)[0]
         df = ws.game_log_table(player_name, year + 2)
         if len(df) < 10:
-            return season_pts, season_ast, season_reb
+            return json.dumps({"Game Predict": {
+                "Points": season_pts,
+                "Assists": season_ast,
+                "Rebounds": season_reb
+            }, "Season Predict": {
+                "Points": season_pts,
+                "Assists": season_ast,
+                "Rebounds": season_reb
+            }})
+
         p = self.perform_regression(df['PTS'].values)
         game_prediction = p(10)
         a = self.perform_regression(df['AST'].values)
         game_prediction_assists = a(10)
         r = self.perform_regression(df['TRB'].values)
         game_prediction_rebounds = r(10)
-        return (0.80 * season_pts + 0.2 * game_prediction), (0.8 * season_ast + 0.2 * game_prediction_assists), (0.8 * season_reb + 0.2 * game_prediction_rebounds)
+        return json.dumps({"Game Predict": {
+            "Points": 0.80 * season_pts + 0.2 * game_prediction,
+            "Assists": 0.80 * season_ast + 0.2 * game_prediction_assists,
+            "Rebounds": 0.80 * season_reb + 0.2 * game_prediction_rebounds
+        }, "Season Predict": {
+            "Points": season_pts,
+            "Assists": season_ast,
+            "Rebounds": season_reb
+        }})
 
     def perform_regression(self, values):
         X = [i for i in range(10)]

@@ -9,6 +9,7 @@ npm-debug.*
 *.mobileprovision
 *.orig.*
 web-build/
-
+.env
+components/gcpkey.json
 # macOS
 .DS_Store

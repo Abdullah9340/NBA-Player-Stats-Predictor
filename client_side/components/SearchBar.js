@@ -1,6 +1,6 @@
 import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 import { Input } from "galio-framework";
-import player_names from "./player_names.js";
+import player_names from "../utils/player_names.js";
 
 export default function SearchBar(props) {
   const playerNames = player_names.split("\n");

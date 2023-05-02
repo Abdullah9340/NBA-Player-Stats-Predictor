@@ -5,9 +5,19 @@ import { Inter_500Medium } from "@expo-google-fonts/inter";
 import * as SplashScreen from "expo-splash-screen";
 import { useCallback, useEffect, useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
-
-import { NativeRouter, Route, Routes } from "react-router-native";
+import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Home from "./components/Home";
+import { PlayerCard } from "./components/PlayerPanel";
+
+const Stack = createNativeStackNavigator();
+const navTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    background: "transparent",
+  },
+};
 
 export default function App() {
   const [appIsReady, setAppIsReady] = useState(false);
@@ -46,13 +56,31 @@ export default function App() {
         <View style={styles.container} onLayout={onLayout}>
           <StatusBar style="auto" />
           <Text style={styles.text}>NBA Player Stats Predictor</Text>
-          <NativeRouter>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              {/* <Route path="/about" component={About} />
-            <Route path="/topics" component={Topics} /> */}
-            </Routes>
-          </NativeRouter>
+          <NavigationContainer theme={navTheme}>
+            <Stack.Navigator
+              options={{
+                headerShown: false,
+                animation: "none",
+              }}
+            >
+              <Stack.Screen
+                name="Home"
+                component={Home}
+                options={{
+                  animation: "none",
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name="PlayerPanel"
+                component={PlayerCard}
+                options={{
+                  headerShown: false,
+                  animation: "none",
+                }}
+              />
+            </Stack.Navigator>
+          </NavigationContainer>
         </View>
       </SafeAreaView>
     </LinearGradient>
